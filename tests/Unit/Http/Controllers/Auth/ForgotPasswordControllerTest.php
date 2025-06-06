@@ -248,3 +248,29 @@ it('tests the custom reset password email content', function () {
         }
     );
 });
+
+it('returns bad request when unable to send reset link', function () {
+    // Arrange
+    Notification::fake();
+
+    $user = User::factory()->create();
+
+    $request = Request::create('/api/password/forgot', 'POST', [
+        'email' => $user->email,
+    ]);
+
+    // Mock Password facade to return an unexpected status
+    Password::shouldReceive('sendResetLink')
+        ->once()
+        ->andReturn('unexpected_status');
+
+    // Act
+    $response = $this->controller->sendResetLinkEmail($request);
+
+    // Assert
+    expect($response->getStatusCode())->toBe(Response::HTTP_BAD_REQUEST)
+        ->and($response->getData(true)['message'])->toBe(__('Unable to send reset link.'));
+
+    // No email should be sent
+    Notification::assertNothingSent();
+});

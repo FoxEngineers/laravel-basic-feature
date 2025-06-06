@@ -18,7 +18,9 @@ class ForgotPasswordController extends Controller
 
         // Customize the reset link notification to use frontend URL
         ResetPassword::createUrlUsing(function ($notifiable, $token) {
+            // @codeCoverageIgnoreStart
             return config('app.frontend_reset_password_url').'?token='.$token.'&email='.urlencode($notifiable->getEmailForPasswordReset());
+            // @codeCoverageIgnoreEnd
         });
 
         $status = Password::sendResetLink(

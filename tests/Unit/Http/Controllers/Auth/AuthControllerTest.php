@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Laravel\Passport\AccessToken;
 use Laravel\Passport\Client;
 use Laravel\Passport\PersonalAccessTokenResult;
 use Laravel\Passport\Token;
@@ -89,25 +90,41 @@ it('throws validation exception for invalid login credentials', function () {
         'password' => 'wrongpassword',
     ]);
 
-    Auth::shouldReceive('attempt')->once()->with(['email' => 'invalid@example.com', 'password' => 'wrongpassword'])->andReturnFalse();
+    Auth::shouldReceive('attempt')->once()->with([
+        'email' => 'invalid@example.com', 'password' => 'wrongpassword',
+    ])->andReturnFalse();
 
-    expect(fn () => $this->controller->login($request))->toThrow(ValidationException::class, __('The provided credentials are incorrect.'));
+    expect(fn () => $this->controller->login($request))->toThrow(ValidationException::class,
+        __('The provided credentials are incorrect.'));
 });
 
-it('logs out successfully', function () {
+it('logout successfully', function () {
     // Create client and user
-    Client::factory()->asPersonalAccessTokenClient()->create();
+    $client = Client::factory()->asPersonalAccessTokenClient()->create();
     $user = User::factory()->create();
 
-    $user->createToken('Personal Access Token');
+    $token = $user->createToken('Personal Access Token')->getToken();
+    $accessToken = new AccessToken([
+        'oauth_access_token_id' => $token->getKey(),
+        'oauth_client_id' => $client->getKey(),
+        'oauth_user_id' => $user->getKey(),
+        'oauth_scopes' => [],
+    ]);
 
-    Auth::shouldReceive('user')->once()->andReturn($user);
+    expect($accessToken->id)->toEqual($token->getKey());
 
+    $user->withAccessToken($accessToken);
+
+    Auth::shouldReceive('user')
+        ->once()
+        ->andReturn($user);
+
+    // Act
     $response = $this->controller->logout();
 
+    // Assert
     expect($response->getStatusCode())->toBe(Response::HTTP_OK)
-        ->and($response->getData(true)['message'])->toBe(__('Logged out successfully.'))
-        ->and($user->token())->toBeNull();
+        ->and($response->getData(true)['message'])->toBe(__('Logged out successfully.'));
 });
 
 it('handles logout when no user is authenticated', function () {

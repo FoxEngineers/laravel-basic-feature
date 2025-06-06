@@ -114,17 +114,3 @@ it('gets authenticated user information', function () {
     ]);
 });
 
-it('returns unauthorized when getting user info without authentication', function () {
-    // Create request with no authenticated user
-    $request = Request::create('/api/me');
-    $request->setUserResolver(function () {
-        return null;
-    });
-
-    // Act
-    $response = $this->controller->me($request);
-
-    // Assert
-    expect($response->getStatusCode())->toBe(Response::HTTP_UNAUTHORIZED)
-        ->and($response->getData(true)['message'])->toBe(__('Unauthenticated.'));
-});

@@ -34,22 +34,10 @@ class UserController extends Controller
 
     public function me(Request $request)
     {
-        // Check if user is authenticated
-        $user = $request->user();
-
-        if (! $user) {
-            return $this->apiResponse(
-                false,
-                __('Unauthenticated.'),
-                [],
-                Response::HTTP_UNAUTHORIZED
-            );
-        }
-
         return $this->apiResponse(
             true,
             'User profile fetched successfully.',
-            ['user' => new UserResource($user)],
+            ['user' => new UserResource($request->user())],
             Response::HTTP_OK
         );
     }
