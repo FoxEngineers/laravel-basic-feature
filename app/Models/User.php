@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\Contracts\OAuthenticatable;
@@ -26,6 +27,8 @@ use App\Notifications\CustomResetPassword;
  * @property Carbon $updated_at
  * @property string|null $phone
  * @property string|null $avatar_path
+ * @property Payment[] $payments
+ * @property Certificate[] $certificates
  */
 class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
 {
@@ -89,5 +92,15 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     public function sendPasswordResetNotification($token): void
     {
         $this->notify(new CustomResetPassword($token));
+    }
+
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 }
