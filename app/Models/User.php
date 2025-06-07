@@ -24,6 +24,8 @@ use App\Notifications\CustomResetPassword;
  * @property Carbon $email_verified_at
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ * @property string|null $phone
+ * @property string|null $avatar_path
  */
 class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
 {
@@ -43,6 +45,8 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
         'password',
         'is_active',
         'address',
+        'phone',
+        'avatar_path',
     ];
 
     /**
@@ -82,7 +86,7 @@ class User extends Authenticatable implements MustVerifyEmail, OAuthenticatable
     /**
      * Send the password reset notification.
      */
-    public function sendPasswordResetNotification($token)
+    public function sendPasswordResetNotification($token): void
     {
         $this->notify(new CustomResetPassword($token));
     }
