@@ -23,15 +23,22 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $fullName = $firstName.' '.$lastName;
+
         return [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
-            'full_name' => 'John Doe',
-            'email' => 'admin@admin.com',
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'full_name' => $fullName,
+            'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('Qwerty@12345'),
             'remember_token' => Str::random(10),
-            'address' => '123 Address',
+            'address' => $this->faker->address(),
+            'phone' => $this->faker->phoneNumber(),
+            'avatar_path' => $this->faker->imageUrl(640, 480, 'people', true, $fullName, true),
+            'is_active' => true,
         ];
     }
 

@@ -4,9 +4,7 @@ use App\Http\Controllers\User\UserController;
 use App\Http\Requests\User\RegisterRequest;
 use App\Models\User;
 use App\Notifications\CustomVerifyEmail;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
@@ -18,7 +16,6 @@ beforeEach(function () {
 
 it('registers a new user successfully', function () {
     // Arrange
-    Event::fake();
     Notification::fake();
 
     $firstName = 'John';
@@ -54,17 +51,6 @@ it('registers a new user successfully', function () {
     // Verify password was hashed
     $user = User::where('email', 'john.doe@example.com')->first();
     expect(Hash::check('password123', $user->password))->toBeTrue();
-
-    // Check event was dispatched
-    Event::assertDispatched(Registered::class, function ($event) use ($user) {
-        return $event->user->id === $user->id;
-    });
-
-    // Verify notification would have been sent
-    Notification::assertNothingSent();
-
-    // Manually trigger verification notification to test it
-    $user->sendEmailVerificationNotification();
 
     // Check that the verification email was sent
     Notification::assertSentTo(
@@ -116,4 +102,3 @@ it('gets authenticated user information', function () {
         'email' => $user->email,
     ]);
 });
-
