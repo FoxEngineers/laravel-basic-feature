@@ -5,7 +5,7 @@
     <title>Verify Your Email Address</title>
 </head>
 <body>
-    <h1>Hello {{ $user->name }},</h1>
+    <h1>Hello {{ $user->full_name }},</h1>
     <p>Thank you for registering. Please verify your email address by clicking the button below.</p>
     <p>
         <a href="{{ $url }}" style="display:inline-block;padding:10px 20px;background:#3869d4;color:#fff;text-decoration:none;border-radius:4px;">

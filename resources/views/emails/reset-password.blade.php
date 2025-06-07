@@ -1,5 +1,5 @@
 @component('mail::message')
-# Hello {{ $user->name ?? $user->email }},
+# Hello {{ $user->full_name ?? $user->email }},
 ssss
 You are receiving this email because we received a password reset request for your account.
 

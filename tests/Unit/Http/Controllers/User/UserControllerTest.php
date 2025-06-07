@@ -21,10 +21,12 @@ it('registers a new user successfully', function () {
     Event::fake();
     Notification::fake();
 
-    $name = 'John Doe';
+    $firstName = 'John';
+    $lastName = 'Doe';
     $email = 'john.doe@example.com';
     $userData = [
-        'name' => $name,
+        'first_name' => $firstName,
+        'last_name' => $lastName,
         'email' => $email,
         'password' => 'password123',
         'password_confirmation' => 'password123',
@@ -44,7 +46,8 @@ it('registers a new user successfully', function () {
     // Check user was created in the database
     $this->assertDatabaseHas('users', [
         'email' => $email,
-        'name' => $name,
+        'first_name' => $firstName,
+        'last_name' => $lastName,
         'email_verified_at' => null,
     ]);
 
@@ -109,7 +112,7 @@ it('gets authenticated user information', function () {
     $responseData = $response->getData(true);
     expect($responseData['data']['user'])->toMatchArray([
         'id' => $user->id,
-        'name' => $user->name,
+        'full_name' => $user->full_name,
         'email' => $user->email,
     ]);
 });

@@ -79,7 +79,9 @@ it('logs in successfully with valid credentials', function () {
         ->and(Carbon::parse($responseData['expires_at'])->toIso8601String())->toEqual($expiresAt->toIso8601String())
         ->and($responseData['user'])->toMatchArray([
             'id' => $user->id,
-            'name' => $user->name,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'full_name' => $user->full_name,
             'email' => $user->email,
         ]);
 });

@@ -8,7 +8,8 @@ it('validates register request rules with valid data', function () {
     $rules = (new RegisterRequest)->rules();
 
     $data = [
-        'name' => 'John Doe',
+        'first_name' => 'John',
+        'last_name' => 'Doe',
         'email' => 'john.doe@example.com',
         'password' => 'password123',
         'password_confirmation' => 'password123',
@@ -30,16 +31,18 @@ it('validates register request rules with missing name', function () {
 
     $validator = Validator::make($invalidData, $rules);
 
+    var_dump($validator->errors()->all());
     expect($validator->passes())->toBeFalse()
-        ->and($validator->errors()->keys())->toMatchArray(['name'])
-        ->and($validator->errors()->get('name'))->toContain(__('validation.required', ['attribute' => 'name']));
+        ->and($validator->errors()->keys())->toMatchArray(['first_name'])
+        ->and($validator->errors()->get('first_name'))->toContain(__('validation.required', ['attribute' => 'first name']));
 });
 
 it('validates register request rules with name exceeding max length', function () {
     $rules = (new RegisterRequest)->rules();
 
     $invalidData = [
-        'name' => str_repeat('A', 256), // Exceeds max length
+        'first_name' => str_repeat('A', 256), // Exceeds max length
+        'last_name' => 'Doe',
         'email' => 'john.doe@example.com',
         'password' => 'password123',
         'password_confirmation' => 'password123',
@@ -48,8 +51,8 @@ it('validates register request rules with name exceeding max length', function (
     $validator = Validator::make($invalidData, $rules);
 
     expect($validator->passes())->toBeFalse()
-        ->and($validator->errors()->keys())->toMatchArray(['name'])
-        ->and($validator->errors()->get('name'))->toContain(__('validation.max.string', ['attribute' => 'name', 'max' => 255]));
+        ->and($validator->errors()->keys())->toMatchArray(['first_name'])
+        ->and($validator->errors()->get('first_name'))->toContain(__('validation.max.string', ['attribute' => 'first name', 'max' => 255]));
 });
 
 it('validates register request rules with duplicate email', function () {
@@ -59,7 +62,8 @@ it('validates register request rules with duplicate email', function () {
     $rules = (new RegisterRequest)->rules();
 
     $invalidData = [
-        'name' => 'John Doe',
+        'first_name' => 'John',
+        'last_name' => 'Doe',
         'email' => $user->email, // Duplicate email
         'password' => 'password123',
         'password_confirmation' => 'password123',
@@ -76,7 +80,8 @@ it('validates register request rules with invalid email format', function () {
     $rules = (new RegisterRequest)->rules();
 
     $invalidData = [
-        'name' => 'John Doe',
+        'first_name' => 'John',
+        'last_name' => 'Doe',
         'email' => 'invalid-email',
         'password' => 'password123',
         'password_confirmation' => 'password123',
@@ -93,7 +98,8 @@ it('validates register request rules with missing password', function () {
     $rules = (new RegisterRequest)->rules();
 
     $invalidData = [
-        'name' => 'John Doe',
+        'first_name' => 'John',
+        'last_name' => 'Doe',
         'email' => 'john.doe@example.com',
         'password_confirmation' => 'password123',
     ];
@@ -109,7 +115,8 @@ it('validates register request rules with password below minimum length', functi
     $rules = (new RegisterRequest)->rules();
 
     $invalidData = [
-        'name' => 'John Doe',
+        'first_name' => 'John',
+        'last_name' => 'Doe',
         'email' => 'john.doe@example.com',
         'password' => 'short',
         'password_confirmation' => 'short',
@@ -126,7 +133,8 @@ it('validates register request rules with mismatched password confirmation', fun
     $rules = (new RegisterRequest)->rules();
 
     $invalidData = [
-        'name' => 'John Doe',
+        'first_name' => 'John',
+        'last_name' => 'Doe',
         'email' => 'john.doe@example.com',
         'password' => 'password123',
         'password_confirmation' => 'differentpassword',
@@ -143,7 +151,8 @@ it('validates register request rules with missing password confirmation', functi
     $rules = (new RegisterRequest)->rules();
 
     $invalidData = [
-        'name' => 'John Doe',
+        'first_name' => 'John',
+        'last_name' => 'Doe',
         'email' => 'john.doe@example.com',
         'password' => 'password123',
     ];
