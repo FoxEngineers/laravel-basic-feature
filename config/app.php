@@ -54,9 +54,9 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
-    'frontend_url' => env('FRONTEND_URL', 'http://localhost:3000'),
-    'frontend_reset_password_url' => env('FRONTEND_RESET_PASSWORD_URL', 'http://localhost:3000/reset-password'),
-    'frontend_verified_redirect_url' => env('FRONTEND_VERIFIED_REDIRECT_URL', 'http://localhost:3000/login'),
+    'frontend_url' => env('FRONTEND_URL'),
+    'frontend_reset_password_url' => env('FRONTEND_RESET_PASSWORD_URL'),
+    'frontend_verification_route' => env('FRONTEND_VERIFICATION_ROUTE'),
 
     /*
     |--------------------------------------------------------------------------

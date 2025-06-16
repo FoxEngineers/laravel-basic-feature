@@ -1,6 +1,6 @@
 ## Setup Instructions
 
-### Installation with Laravel Sail
+### Installation with Laravel Sail (docker)
 
 1. Clone the repository:
 ```bash
@@ -38,12 +38,22 @@ docker run --rm \
 ./vendor/bin/sail artisan migrate
 ```
 
-7. Create a personal access client for Passport:
+7. Run Passport commands to generate keys:
+```bash
+php artisan passport:keys
+```
+
+8. Create a personal access client for Passport:
 ```bash
 ./vendor/bin/sail artisan passport:client --personal
 ```
 
-### Installation without Laravel Sail
+9. Run seeder to create the default user:
+```bash
+./vendor/bin/sail artisan db:seed
+```
+
+### Installation without Laravel Sail (docker)
 
 1. Clone the repository:
 ```bash
@@ -71,9 +81,19 @@ php artisan key:generate
 php artisan migrate
 ```
 
-6. Create a personal access client for Passport:
+6. Run Passport commands to generate keys:
+```bash
+php artisan passport:keys
+```
+
+7. Create a personal access client for Passport:
 ```bash
 php artisan passport:client --personal
+```
+
+8. Run seeder to create the default user:
+```bash
+php artisan db:seed
 ```
 
 ### Environment Variables
@@ -82,7 +102,7 @@ Set these in your `.env`:
 ```
 FRONTEND_URL=http://localhost:3000
 FRONTEND_RESET_PASSWORD_URL=http://localhost:3000/reset-password
-FRONTEND_VERIFIED_REDIRECT_URL=http://localhost:3000/login
+FRONTEND_VERIFICATION_ROUTE=http://localhost:3000/verify-email
 ```
 
 ## API Features
@@ -106,17 +126,21 @@ This project includes a ready-to-use authentication system with the following fe
 | GET    | `/me`                     | Get current user profile           | Yes          |
 | POST   | `/password/forgot`        | Send password reset email          | No           |
 | POST   | `/password/reset`         | Reset password                     | No           |
+| GET    | `/email/verify/{id}/{hash}` | Verify email (called by frontend) | No           |
 
 ### Email Verification
 
-- After registration, the email contains a link sent to the user:
-  `/email/verify/{id}/{hash}`
-- On successful verification, the backend will redirect the user to the URL specified by the `FRONTEND_VERIFIED_REDIRECT_URL` environment variable (default: `${FRONTEND_URL}/login`).
+- After registration, a verification email is sent via queue.
+- The email contains a link to the frontend verification page with all required parameters:
+  `${FRONTEND_VERIFICATION_ROUTE}?id={id}&hash={hash}&expires={timestamp}&signature={signature}`
+- The frontend should extract the query parameters and make a GET request to:
+  `/email/verify/{id}/{hash}?expires={timestamp}&signature={signature}`
+- On successful verification, the backend returns a JSON response that your frontend can handle.
 
-**Note:**
-- The backend route `/email/verify/{id}/{hash}` is defined in `routes/web.php` with the `signed` middleware and named `verification.verify`.
-- The verification link sent to the user must be signed, which then calls the backend route for verification.
-- The redirect URL after successful verification is fully configurable via the `FRONTEND_VERIFIED_REDIRECT_URL` environment variable.
+**Note:**  
+- The backend route `/email/verify/{id}/{hash}` is defined in `routes/api.php` with the `signed` middleware and named `verification.verify`.  
+- The verification link expires after the period specified in `AUTH_VERIFICATION_EXPIRE` (default: 24 hours).
+- All verification parameters must be preserved when redirecting to maintain the link's validity.
 
 ### Password Reset
 

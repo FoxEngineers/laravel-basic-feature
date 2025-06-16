@@ -46,6 +46,10 @@ return [
         ],
     ],
 
+    'verification' => [
+        'expire' => env('AUTH_VERIFICATION_EXPIRE', 24), // hours
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | User Providers

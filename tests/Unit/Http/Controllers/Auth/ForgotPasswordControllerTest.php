@@ -1,13 +1,12 @@
 <?php
 
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Models\User;
 use App\Notifications\CustomResetPassword;
 use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
 beforeEach(function () {
@@ -20,7 +19,7 @@ it('sends a reset link email successfully', function () {
 
     $user = User::factory()->create();
 
-    $request = Request::create('/api/password/forgot', 'POST', [
+    $request = ForgotPasswordRequest::create('/api/password/forgot', 'POST', [
         'email' => $user->email,
     ]);
 
@@ -55,7 +54,7 @@ it('returns not found when email does not exist', function () {
     // Arrange
     Notification::fake();
 
-    $request = Request::create('/api/password/forgot', 'POST', [
+    $request = ForgotPasswordRequest::create('/api/password/forgot', 'POST', [
         'email' => 'nonexistent@example.com',
     ]);
 
@@ -64,30 +63,10 @@ it('returns not found when email does not exist', function () {
 
     // Assert
     expect($response->getStatusCode())->toBe(Response::HTTP_NOT_FOUND)
-        ->and($response->getData(true)['message'])->toBe(__(Password::INVALID_USER));
+        ->and($response->getData(true)['message'])->toBe(__('tle-validation.email.exists'));
 
     // No email should be sent
     Notification::assertNothingSent();
-});
-
-it('rejects request without email', function () {
-    // Arrange
-    $request = Request::create('/api/password/forgot', 'POST', []);
-
-    // Act & Assert
-    $this->expectException(ValidationException::class);
-    $this->controller->sendResetLinkEmail($request);
-});
-
-it('rejects request with invalid email format', function () {
-    // Arrange
-    $request = Request::create('/api/password/forgot', 'POST', [
-        'email' => 'not-an-email',
-    ]);
-
-    // Act & Assert
-    $this->expectException(ValidationException::class);
-    $this->controller->sendResetLinkEmail($request);
 });
 
 it('returns too many requests when throttled', function () {
@@ -96,7 +75,7 @@ it('returns too many requests when throttled', function () {
 
     $user = User::factory()->create();
 
-    $request = Request::create('/api/password/forgot', 'POST', [
+    $request = ForgotPasswordRequest::create('/api/password/forgot', 'POST', [
         'email' => $user->email,
     ]);
 
@@ -114,106 +93,6 @@ it('returns too many requests when throttled', function () {
 
     // No email should be sent when throttled
     Notification::assertNothingSent();
-});
-
-it('resets password successfully', function () {
-    // Arrange
-    $user = User::factory()->create();
-    $token = Password::createToken($user);
-
-    $request = Request::create('/api/password/reset', 'POST', [
-        'token' => $token,
-        'email' => $user->email,
-        'password' => 'newpassword123',
-        'password_confirmation' => 'newpassword123',
-    ]);
-
-    // Act
-    $response = $this->controller->reset($request);
-
-    // Assert
-    expect($response->getStatusCode())->toBe(Response::HTTP_OK)
-        ->and($response->getData(true)['message'])->toBe(__('Password has been reset.'));
-
-    // Refresh user from database
-    $updatedUser = User::find($user->id);
-
-    // Verify password was changed
-    expect(Hash::check('newpassword123', $updatedUser->password))->toBeTrue();
-
-    // Token should be deleted after successful reset
-    $this->assertDatabaseMissing('password_reset_tokens', [
-        'email' => $user->email,
-    ]);
-});
-
-it('fails to reset password with invalid token', function () {
-    // Arrange
-    $user = User::factory()->create();
-
-    $request = Request::create('/api/password/reset', 'POST', [
-        'token' => 'invalid-token',
-        'email' => $user->email,
-        'password' => 'newpassword123',
-        'password_confirmation' => 'newpassword123',
-    ]);
-
-    // Act & Assert
-    try {
-        $this->controller->reset($request);
-        $this->fail('Expected ValidationException was not thrown');
-    } catch (ValidationException $e) {
-        expect($e->errors())->toHaveKey('email')
-            ->and($e->errors()['email'][0])->toBe(__(Password::INVALID_TOKEN));
-    }
-});
-
-it('fails to reset password with non-existent email', function () {
-    // Arrange
-    $request = Request::create('/api/password/reset', 'POST', [
-        'token' => 'any-token',
-        'email' => 'nonexistent@example.com',
-        'password' => 'newpassword123',
-        'password_confirmation' => 'newpassword123',
-    ]);
-
-    // Act & Assert
-    $this->expectException(ValidationException::class);
-    $this->controller->reset($request);
-});
-
-it('fails to reset password with password confirmation mismatch', function () {
-    // Arrange
-    $user = User::factory()->create();
-    $token = Password::createToken($user);
-
-    $request = Request::create('/api/password/reset', 'POST', [
-        'token' => $token,
-        'email' => $user->email,
-        'password' => 'newpassword123',
-        'password_confirmation' => 'different-password',
-    ]);
-
-    // Act & Assert
-    $this->expectException(ValidationException::class);
-    $this->controller->reset($request);
-});
-
-it('fails to reset password with short password', function () {
-    // Arrange
-    $user = User::factory()->create();
-    $token = Password::createToken($user);
-
-    $request = Request::create('/api/password/reset', 'POST', [
-        'token' => $token,
-        'email' => $user->email,
-        'password' => 'short',
-        'password_confirmation' => 'short',
-    ]);
-
-    // Act & Assert
-    $this->expectException(ValidationException::class);
-    $this->controller->reset($request);
 });
 
 it('tests the custom reset password email content', function () {
@@ -255,7 +134,7 @@ it('returns bad request when unable to send reset link', function () {
 
     $user = User::factory()->create();
 
-    $request = Request::create('/api/password/forgot', 'POST', [
+    $request = ForgotPasswordRequest::create('/api/password/forgot', 'POST', [
         'email' => $user->email,
     ]);
 

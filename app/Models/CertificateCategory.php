@@ -11,6 +11,14 @@ use Illuminate\Database\Eloquent\Model;
 class CertificateCategory extends Model
 {
     protected $fillable = [
-        'name'
+        'name',
+        'is_active',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 }

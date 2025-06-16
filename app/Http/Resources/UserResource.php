@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\User
+ * @property User $resource
  */
 class UserResource extends JsonResource
 {
@@ -20,16 +21,17 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'first_name' => $this->first_name,
-            'last_name' => $this->last_name,
-            'full_name' => $this->full_name,
-            'email' => $this->email,
-            'phone' => $this->phone,
-            'avatar_path' => $this->avatar_path,
-            'address' => $this->address,
-            'email_verified_at' => $this->email_verified_at,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'first_name' => $this->resource->first_name,
+            'last_name' => $this->resource->last_name,
+            'full_name' => $this->resource->full_name,
+            'email' => $this->resource->email,
+            'phone' => $this->resource->phone,
+            'avatar_path' => $this->resource->avatar_path,
+            'address' => $this->resource->address,
+            'is_admin' => $this->resource->is_admin,
+            'email_verified_at' => $this->resource->email_verified_at,
+            'created_at' => $this->resource->created_at,
+            'updated_at' => $this->resource->updated_at,
         ];
     }
 }

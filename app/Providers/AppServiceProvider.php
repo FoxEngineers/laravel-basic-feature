@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Constants\Constant;
-use App\Models\PassportClient;
 use App\Models\PassportToken;
 use Carbon\CarbonInterval;
 use Illuminate\Support\ServiceProvider;

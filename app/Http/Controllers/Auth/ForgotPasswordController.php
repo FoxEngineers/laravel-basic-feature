@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
@@ -12,10 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ForgotPasswordController extends Controller
 {
-    public function sendResetLinkEmail(Request $request)
+    public function sendResetLinkEmail(ForgotPasswordRequest $request)
     {
-        $request->validate(['email' => ['required', 'email']]);
-
         // Customize the reset link notification to use frontend URL
         ResetPassword::createUrlUsing(function ($notifiable, $token) {
             // @codeCoverageIgnoreStart
@@ -28,7 +27,7 @@ class ForgotPasswordController extends Controller
         );
 
         if ($status === Password::INVALID_USER) {
-            return $this->apiResponse(false, __(Password::INVALID_USER), null, Response::HTTP_NOT_FOUND);
+            return $this->apiResponse(false, __('tle-validation.email.exists'), null, Response::HTTP_NOT_FOUND);
         }
 
         if ($status === Password::RESET_LINK_SENT) {
@@ -42,14 +41,8 @@ class ForgotPasswordController extends Controller
         return $this->apiResponse(false, __('Unable to send reset link.'), null, Response::HTTP_BAD_REQUEST);
     }
 
-    public function reset(Request $request)
+    public function reset(ResetPasswordRequest $request)
     {
-        $request->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email', 'exists:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {

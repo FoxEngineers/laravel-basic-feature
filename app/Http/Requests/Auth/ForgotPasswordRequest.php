@@ -4,16 +4,21 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LoginRequest extends FormRequest
+class ForgotPasswordRequest extends FormRequest
 {
+    /**
+     * Get the validation rules that apply to the request.
+     */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'min:2', 'max:50', 'email:rfc', 'regex:/@.+\.[a-z]{2,}$/i'],
-            'password' => ['required', 'string', 'min:2', 'max:50'],
+            'email' => ['required', 'string', 'min:2', 'max:50', 'email:rfc', 'regex:/@.+\.[a-z]{2,}$/i'],
         ];
     }
 
+    /**
+     * Get custom messages for validator errors.
+     */
     public function messages(): array
     {
         return [
@@ -22,9 +27,6 @@ class LoginRequest extends FormRequest
             'email.regex' => __('tle-validation.email.regex'),
             'email.min' => __('tle-validation.email.min'),
             'email.max' => __('tle-validation.email.max'),
-            'password.required' => __('tle-validation.password.required'),
-            'password.min' => __('tle-validation.password.min'),
-            'password.max' => __('tle-validation.password.max'),
         ];
     }
 }
